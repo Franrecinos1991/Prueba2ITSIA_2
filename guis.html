@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller Práctico de Bases de Datos - SQL</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 {
+            color: var(--primary);
+            border-bottom: 3px solid var(--secondary);
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        h2, h3 { color: var(--primary); margin-top: 30px; }
+        p { font-size: 16px; }
+        .sql-code {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+        }
+        .keyword { color: #c678dd; }
+        .string { color: #98c379; }
+        .function { color: #61afef; }
+        .exercise-list {
+            list-style-type: none;
+            padding: 0;
+            counter-reset: my-counter;
+        }
+        .exercise-item {
+            background-color: #ffffff;
+            border: 1px solid #e1e4e8;
+            border-left: 5px solid var(--secondary);
+            margin-bottom: 20px;
+            padding: 20px;
+            border-radius: 6px;
+            position: relative;
+        }
+        .exercise-item::before {
+            counter-increment: my-counter;
+            content: counter(my-counter) ". ";
+            font-weight: bold;
+            color: var(--secondary);
+            font-size: 1.2em;
+        }
+        .answer-line {
+            display: block;
+            border-bottom: 2px dashed #b0bec5;
+            height: 30px;
+            margin-top: 15px;
+            width: 100%;
+        }
+        .answer-line-double {
+            display: block;
+            border-bottom: 2px dashed #b0bec5;
+            height: 30px;
+            margin-top: 30px;
+            width: 100%;
+        }
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; padding: 0; width: 100%; max-width: 100%; }
+            .sql-code { background-color: #f1f1f1; color: #000; border: 1px solid #ccc; }
+            .exercise-item { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Taller: Diseño y Consultas SQL en MySQL</h1>
+        <p><strong>Objetivo:</strong> Comprender la estructura de una base de datos relacional y redactar consultas SQL (SELECT, INSERT, UPDATE, DELETE) basadas en un modelo de 4 tablas.</p>
+        <p><strong>Contexto:</strong> Administramos la base de datos de una Feria Tecnológica para estudiantes de 3er Año. Tenemos Categorías, Proyectos, Estudiantes y las Evaluaciones de dichos proyectos.</p>
+
+        <h2>Script de la Base de Datos (Estructura y Datos)</h2>
+        <div class="sql-code">
+<pre>
+<span class="keyword">CREATE DATABASE</span> FeriaTecnologica;
+<span class="keyword">USE</span> FeriaTecnologica;
+
+<span class="keyword">CREATE TABLE</span> Categorias (
+    id_categoria <span class="keyword">INT PRIMARY KEY AUTO_INCREMENT</span>,
+    nombre_categoria <span class="keyword">VARCHAR</span>(50),
+    descripcion <span class="keyword">VARCHAR</span>(100)
+);
+
+<span class="keyword">CREATE TABLE</span> Proyectos (
+    id_proyecto <span class="keyword">INT PRIMARY KEY AUTO_INCREMENT</span>,
+    titulo <span class="keyword">VARCHAR</span>(100),
+    fecha_presentacion <span class="keyword">DATE</span>,
+    id_categoria <span class="keyword">INT</span>,
+    <span class="keyword">FOREIGN KEY</span> (id_categoria) <span class="keyword">REFERENCES</span> Categorias(id_categoria)
+);
+
+<span class="keyword">CREATE TABLE</span> Estudiantes (
+    id_estudiante <span class="keyword">INT PRIMARY KEY AUTO_INCREMENT</span>,
+    nombre <span class="keyword">VARCHAR</span>(50),
+    apellido <span class="keyword">VARCHAR</span>(50),
+    nivel_academico <span class="keyword">VARCHAR</span>(50)
+);
+
+<span class="keyword">CREATE TABLE</span> Evaluaciones (
+    id_evaluacion <span class="keyword">INT PRIMARY KEY AUTO_INCREMENT</span>,
+    id_proyecto <span class="keyword">INT</span>,
+    id_estudiante <span class="keyword">INT</span>,
+    calificacion <span class="keyword">DECIMAL</span>(4,2),
+    <span class="keyword">FOREIGN KEY</span> (id_proyecto) <span class="keyword">REFERENCES</span> Proyectos(id_proyecto),
+    <span class="keyword">FOREIGN KEY</span> (id_estudiante) <span class="keyword">REFERENCES</span> Estudiantes(id_estudiante)
+);
+
+<span class="keyword">INSERT INTO</span> Categorias (nombre_categoria, descripcion) <span class="keyword">VALUES</span> 
+(<span class="string">'Robótica'</span>, <span class="string">'Proyectos de automatización'</span>),
+(<span class="string">'Impresión 3D'</span>, <span class="string">'Diseño de piezas tridimensionales'</span>),
+(<span class="string">'Software'</span>, <span class="string">'Desarrollo de aplicaciones y simuladores'</span>);
+
+<span class="keyword">INSERT INTO</span> Proyectos (titulo, fecha_presentacion, id_categoria) <span class="keyword">VALUES</span> 
+(<span class="string">'Brazo Mecánico'</span>, <span class="string">'2026-05-15'</span>, 1),
+(<span class="string">'Piezas de Motor'</span>, <span class="string">'2026-05-16'</span>, 2),
+(<span class="string">'Simulador de Memoria'</span>, <span class="string">'2026-05-17'</span>, 3);
+
+<span class="keyword">INSERT INTO</span> Estudiantes (nombre, apellido, nivel_academico) <span class="keyword">VALUES</span> 
+(<span class="string">'Carlos'</span>, <span class="string">'Méndez'</span>, <span class="string">'3er Año IT'</span>),
+(<span class="string">'Ana'</span>, <span class="string">'López'</span>, <span class="string">'3er Año IT'</span>),
+(<span class="string">'Luis'</span>, <span class="string">'Pérez'</span>, <span class="string">'2do Año IT'</span>);
+
+<span class="keyword">INSERT INTO</span> Evaluaciones (id_proyecto, id_estudiante, calificacion) <span class="keyword">VALUES</span> 
+(1, 1, 9.50),
+(2, 2, 8.75),
+(3, 3, 10.00);
+</pre>
+        </div>
+
+        <h2>Ejercicios a Resolver</h2>
+        <p>Escribe la sentencia SQL correcta en los espacios indicados para cada problema.</p>
+        
+        <ul class="exercise-list">
+            <!-- Nivel Básico -->
+            <li class="exercise-item">Muestra todos los datos de la tabla <code>Estudiantes</code>. <span class="answer-line"></span></li>
+            <li class="exercise-item">Muestra únicamente el <code>titulo</code> y la <code>fecha_presentacion</code> de todos los proyectos. <span class="answer-line"></span></li>
+            <li class="exercise-item">Encuentra a todos los estudiantes que pertenezcan al <code>nivel_academico</code> '3er Año IT'. <span class="answer-line"></span></li>
+            <li class="exercise-item">Muestra todas las <code>Categorias</code> disponibles. <span class="answer-line"></span></li>
+            <li class="exercise-item">Muestra los datos de la tabla <code>Evaluaciones</code> donde la calificación sea mayor a 9.00. <span class="answer-line"></span></li>
+            
+            <!-- Inserción y Modificación -->
+            <li class="exercise-item">Inserta un nuevo estudiante llamado 'Elena' 'Gómez', del '3er Año IT'. <span class="answer-line"></span></li>
+            <li class="exercise-item">Inserta una nueva categoría llamada 'Redes' con la descripción 'Infraestructura'. <span class="answer-line"></span></li>
+            <li class="exercise-item">Actualiza la calificación en la tabla <code>Evaluaciones</code> a '9.00' para el <code>id_evaluacion = 2</code>. <span class="answer-line"></span></li>
+            <li class="exercise-item">Cambia el nivel académico de 'Luis' 'Pérez' a '3er Año IT'. <span class="answer-line"></span></li>
+            <li class="exercise-item">Elimina de la tabla <code>Estudiantes</code> al registro con <code>id_estudiante = 4</code>. <span class="answer-line"></span></li>
+            
+            <!-- Funciones de Agregación y Ordenamiento -->
+            <li class="exercise-item">Cuenta cuántos estudiantes hay registrados en total (usa la función COUNT). <span class="answer-line"></span></li>
+            <li class="exercise-item">Ordena los proyectos por <code>fecha_presentacion</code> del más reciente al más antiguo (DESC). <span class="answer-line"></span></li>
+            <li class="exercise-item">Encuentra la calificación promedio (AVG) de todas las evaluaciones. <span class="answer-line"></span></li>
+            <li class="exercise-item">Muestra a los estudiantes cuyo nombre comience con la letra 'A' (usa LIKE). <span class="answer-line"></span></li>
+            
+            <!-- JOINS (Relaciones) -->
+            <li class="exercise-item">Haz una consulta que muestre el <code>titulo</code> del proyecto y el <code>nombre_categoria</code> al que pertenece (Usa INNER JOIN). <span class="answer-line"></span><span class="answer-line-double"></span></li>
+            <li class="exercise-item">Muestra el <code>nombre</code> del estudiante y la <code>calificacion</code> que obtuvo en sus evaluaciones. <span class="answer-line"></span><span class="answer-line-double"></span></li>
+            <li class="exercise-item">Muestra cuántos proyectos hay por cada categoría (Usa GROUP BY). <span class="answer-line"></span><span class="answer-line-double"></span></li>
+            <li class="exercise-item">Encuentra los proyectos (título) que se presentan después del '2026-05-15'. <span class="answer-line"></span></li>
+            <li class="exercise-item">Muestra el nombre del estudiante y el título del proyecto que está realizando (Requiere unir Estudiantes, Evaluaciones y Proyectos). <span class="answer-line"></span><span class="answer-line-double"></span></li>
+            <li class="exercise-item"><strong>Desafío Final:</strong> Muestra el nombre del estudiante, el título del proyecto, el nombre de la categoría y su calificación final (Une las 4 tablas). <span class="answer-line"></span><span class="answer-line-double"></span><span class="answer-line-double"></span></li>
+        </ul>
+    </div>
+</body>
+</html>
